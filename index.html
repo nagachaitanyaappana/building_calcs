@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building Calcs by Polytechnic Boys MCSMP</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f4f8',
+                            100: '#d9e2ec',
+                            500: '#102a43',
+                            600: '#0b69a3',
+                            700: '#035388',
+                            800: '#003e6b',
+                            900: '#00214c',
+                        },
+                        accent: {
+                            500: '#d97706',
+                            600: '#b45309',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom print stylesheet for executive report generation */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+                font-size: 11pt;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            .print-card {
+                border: 1px solid #cbd5e1 !important;
+                box-shadow: none !important;
+                break-inside: avoid;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+        }
+        .print-only {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Header Section (No-Print) -->
+    <header class="bg-gradient-to-r from-brand-900 via-brand-800 to-brand-700 text-white shadow-lg no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-amber-500 text-slate-900 p-3 rounded-xl shadow-inner font-black text-2xl tracking-wider">
+                        MCSMP
+                    </div>
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Building Calcs <span class="text-amber-400 text-lg font-medium">by Polytechnic Boys MCSMP</span></h1>
+                        <p class="text-xs sm:text-sm text-slate-300 mt-0.5">IS Code Compliant Structural Material Estimator & Calculation Suite (IS 456:2000, IS 1200, IS 383, IS 269)</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="window.print()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 px-4 py-2.5 rounded-lg font-semibold text-sm transition flex items-center shadow-md">
+                        <i class="fa-solid fa-print mr-2"></i> Print / Export Report
+                    </button>
+                    <button onclick="resetAllCalculations()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-2.5 rounded-lg text-sm transition">
+                        <i class="fa-solid fa-rotate-left mr-1"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
+        <!-- Project Info Strip (No-Print) -->
+        <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6 no-print">
+            <h2 class="text-xs font-bold text-brand-700 uppercase tracking-wider mb-3 flex items-center">
+                <i class="fa-solid fa-folder-open mr-2"></i> Project Metadata & Rates Configurator
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Project Name</label>
+                    <input type="text" id="projName" value="Residential Building G+1" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-medium focus:ring-2 focus:ring-brand-600 outline-none" oninput="updateReportMetaData()">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Location / Site</label>
+                    <input type="text" id="projSite" value="Polytechnic Campus Block A" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-medium focus:ring-2 focus:ring-brand-600 outline-none" oninput="updateReportMetaData()">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Prepared By (Engineer)</label>
+                    <input type="text" id="projEngineer" value="MCSMP Team" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-medium focus:ring-2 focus:ring-brand-600 outline-none" oninput="updateReportMetaData()">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Date</label>
+                    <input type="date" id="projDate" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-medium focus:ring-2 focus:ring-brand-600 outline-none" onchange="updateReportMetaData()">
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation Tabs (No-Print) -->
+        <nav class="flex overflow-x-auto space-x-2 border-b border-slate-200 mb-6 pb-2 no-print">
+            <button onclick="switchTab('rcc')" id="tab-rcc" class="tab-btn active px-4 py-2.5 rounded-lg font-semibold text-sm whitespace-nowrap transition bg-brand-700 text-white shadow">
+                <i class="fa-solid fa-cubes mr-2"></i>1. RCC & Steel
+            </button>
+            <button onclick="switchTab('brickwork')" id="tab-brickwork" class="tab-btn px-4 py-2.5 rounded-lg font-semibold text-sm whitespace-nowrap transition bg-white text-slate-700 hover:bg-slate-100 border border-slate-200">
+                <i class="fa-solid fa-border-all mr-2"></i>2. Brickwork Masonry
+            </button>
+            <button onclick="switchTab('plastering')" id="tab-plastering" class="tab-btn px-4 py-2.5 rounded-lg font-semibold text-sm whitespace-nowrap transition bg-white text-slate-700 hover:bg-slate-100 border border-slate-200">
+                <i class="fa-solid fa-paint-roller mr-2"></i>3. Plastering Works
+            </button>
+            <button onclick="switchTab('flooring')" id="tab-flooring" class="tab-btn px-4 py-2.5 rounded-lg font-semibold text-sm whitespace-nowrap transition bg-white text-slate-700 hover:bg-slate-100 border border-slate-200">
+                <i class="fa-solid fa-layer-group mr-2"></i>4. Flooring & Tiling
+            </button>
+            <button onclick="switchTab('boq')" id="tab-boq" class="tab-btn px-4 py-2.5 rounded-lg font-semibold text-sm whitespace-nowrap transition bg-amber-500 text-slate-950 font-bold hover:bg-amber-400">
+                <i class="fa-solid fa-calculator mr-2"></i>Consolidated BOQ & Summary
+            </button>
+        </nav>
+
+        <!-- Dynamic Calculation Tab Modules -->
+        
+        <!-- MODULE 1: RCC CONCRETE & STEEL -->
+        <section id="module-rcc" class="tab-content block">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Inputs Column -->
+                <div class="lg:col-span-5 bg-white rounded-xl shadow-md border border-slate-200 p-5">
+                    <div class="flex items-center justify-between border-b pb-3 mb-4">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-trowel-bricks text-brand-600 mr-2"></i> RCC & Steel Estimator
+                        </h3>
+                        <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-blue-200">IS 456:2000</span>
+                    </div>
+
+                    <form id="form-rcc" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Structural Element Type</label>
+                            <select id="rcc_type" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-brand-600 outline-none">
+                                <option value="Slab">RCC Slab / Roof</option>
+                                <option value="Beam">RCC Beam</option>
+                                <option value="Column">RCC Column</option>
+                                <option value="Footing">Isolated Footing</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">Length (m)</label>
+                                <input type="number" id="rcc_length" value="10" step="0.1" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-brand-600 outline-none" oninput="calculateRCC()">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">Width (m)</label>
+                                <input type="number" id="rcc_width" value="5" step="0.1" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-brand-600 outline-none" oninput="calculateRCC()">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">Depth/Thk (m)</label>
+                                <input type="number" id="rcc_depth" value="0.15" step="0.01" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-brand-600 outline-none" oninput="calculateRCC()">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">Concrete Mix Grade</label>
+                                <select id="rcc_grade" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-brand-600 outline-none" onchange="calculateRCC()">
+                                    <option value="M15">M15 (1 : 2 : 4)</option>
+                                    <option value="M20" selected>M20 (1 : 1.5 : 3)</option>
+                                    <option value="M25">M25 (1 : 1 : 2)</option>
+                                    <option value="M30">M30 (Design Mix)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">Steel (% of Wet Vol)</label>
+                                <input type="number" id="rcc_steel_pct" value="1.0" step="0.1" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-brand-600 outline-none" oninput="calculateRCC()">
+                            </div>
+                        </div>
+
+                        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-900">
+                            <i class="fa-solid fa-circle-info mr-1 text-amber-600"></i>
+                            <strong>IS 456 Provision:</strong> Standard Dry Volume factor of <strong>1.54</strong> applied for dry mix shrinkage and void allowance.
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Outputs Column -->
+                <div class="lg:col-span-7 bg-white rounded-xl shadow-md border border-slate-200 p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between border-b pb-3 mb-4">
+                            <h3 class="text-lg font-bold text-slate-800">Estimated Materials Breakup</h3>
+                            <span class="text-xs font-mono bg-slate-100 px-2 py-1 rounded border text-slate-600">Total Wet Vol: <strong id="out_rcc_wet_vol">7.50</strong> m³</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
+                            <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-center">
+                                <div class="text-xs text-slate-500 font-medium">Cement Required</div>
+                                <div class="text-xl font-extrabold text-brand-700 mt-1" id="out_rcc_cement_bags">60.6</div>
+                                <div class="text-xs text-slate-400">Bags (50kg each)</div>
+                            </div>
+                            <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-center">
+                                <div class="text-xs text-slate-500 font-medium">Sand (Fine Agg)</div>
+                                <div class="text-xl font-extrabold text-brand-700 mt-1" id="out_rcc_sand_cft">321.3</div>
+                                <div class="text-xs text-slate-400">cu.ft (<span id="out_rcc_sand_tons">15.4</span> Tons)</div>
+                            </div>
+                            <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-center">
+                                <div class="text-xs text-slate-500 font-medium">Coarse Aggregate</div>
+                                <div class="text-xl font-extrabold text-brand-700 mt-1" id="out_rcc_agg_cft">642.6</div>
+                                <div class="text-xs text-slate-400">cu.ft (<span id="out_rcc_agg_tons">29.8</span> Tons)</div>
+                            </div>
+                            <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-center">
+                                <div class="text-xs text-slate-500 font-medium">Reinforcement Steel</div>
+                                <div class="text-xl font-extrabold text-slate-900 mt-1" id="out_rcc_steel_kg">588.75</div>
+                                <div class="text-xs text-slate-400">Kg (<span id="out_rcc_steel_ton">0.59</span> MT)</div>
+                            </div>
+                            <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-center">
+                                <div class="text-xs text-slate-500 font-medium">Mixing Water</div>
+                                <div class="text-xl font-extrabold text-blue-600 mt-1" id="out_rcc_water_ltr">1515</div>
+                                <div class="text-xs text-slate-400">Liters (W/C ~ 0.50)</div>
+                            </div>
+                            <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-center">
+                                <div class="text-xs text-amber-800 font-medium">Est. Module Cost</div>
+                                <div class="text-xl font-extrabold text-amber-600 mt-1" id="out_rcc_cost">₹ 0.00</div>
+                                <div class="text-xs text-amber-700">Calculated from rates</div>
+                            </div>
+                        </div>
+
+                        <!-- Technical Reference Badges -->
+                        <div class="border-t pt-3 mt-2 text-xs text-slate-500 space-y-1">
+                            <div><i class="fa-solid fa-check text-green-600 mr-1"></i> <strong>IS 456:2000 Table 9:</strong> Proportions for nominal concrete mixes.</div>
+                            <div><i class="fa-solid fa-check text-green-600 mr-1"></i> <strong>IS 383:2016:</strong> Specifications for Coarse and Fine Aggregates from Natural Sources.</div>
+                            <div><i class="fa-solid fa-check text-green-600 mr-1"></i> <strong>IS 1786:</strong> High yield strength deformed steel bars (Fe 500/550).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 2: BRICKWORK MASONRY -->
+        <section id="module-brickwork" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Inputs Column -->
+                <div class="lg:col-span-5 bg-white rounded-xl shadow-md border border-slate-200 p-5">
+                    <div class="flex items-center justify-between border-b pb-3 mb-4">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-border-all text-brand-600 mr-2"></i> Brick Masonry Estimator
+                        </h3>
+                        <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-blue-200">IS 1077 / IS 2212</span>
+                    </div>
+
+                    <form id="form-brickwork" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">Wall Length (m)</label>
+                                <input type="number" id="bw_length" value="12" step="0.1" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-brand-600 outline-none" oninput="calculateBrickwork()">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">Wall Height (m)</label>
+                                <input type="number" id="bw_height" value="3" step="0.1" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-brand-600 outline-none" oninput="calculateBrickwork()">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">Wall Thickness</label>
+                                <select id="bw_thickness" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-brand-600 outline-none" onchange="calculateBrickwork()">
+                                    <option value="0.23" selected>9 inch (230 mm)</option>
+                                    <option value="0.115">4.5 inch (115 mm)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">Mortar Ratio</label>
+                                <select id="bw_ratio" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-brand-600 outline-none" onchange="calculateBrickwork()">
+                                    <option value="1:4">1 : 4 (Rich Mix)</option>
+                                    <option value="1:6" selected>1 : 6 (Standard Mix)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Brick Wastage Allowance (%)</label>
+                            <input type="number" id="bw_wastage" value="10" step="1" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-brand-600 outline-none" oninput="calculateBrickwork()">
+                        </div>
+
+                        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-900">
+                            <i class="fa-solid fa-circle-info mr-1 text-amber-600"></i>
+                            Standard Modular Brick Size: <strong>190mm x 90mm x 90mm</strong> (Nominal size with mortar: <strong>200mm x 100mm x 100mm</strong> as per IS 1077).
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Outputs Column -->
+                <div class="lg:col-span-7 bg-white rounded-xl shadow-md border border-slate-200 p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between border-b pb-3 mb-4">
+                            <h3 class="text-lg font-bold text-slate-800">Masonry Calculation Breakdown</h3>
+                            <span class="text-xs font-mono bg-slate-100 px-2 py-1 rounded border text-slate-600">Wall Vol: <strong id="out_bw_vol">8.28</strong> m³</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
+                            <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-center">
+                                <div class="text-xs text-slate-500 font-medium">Bricks Required</div>
+                                <div class="text-xl font-extrabold text-brand-700 mt-1" id="out_bw_bricks">4,554</div>
+                                <div class="text-xs text-slate-400">Nos (incl. wastage)</div>
+                            </div>
+                            <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-center">
+                                <div class="text-xs text-slate-500 font-medium">Cement for Mortar</div>
+                                <div class="text-xl font-extrabold text-brand-700 mt-1" id="out_bw_cement_bags">13.1</div>
+                                <div class="text-xs text-slate-400">Bags (50kg)</div>
+                            </div>
+                            <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-center">
+                                <div class="text-xs text-slate-500 font-medium">Sand for Mortar</div>
+                                <div class="text-xl font-extrabold text-brand-700 mt-1" id="out_bw_sand_cft">104.2</div>
+                                <div class="text-xs text-slate-400">cu.ft (<span id="out_bw_sand_tons">5.0</span> Tons)</div>
+                            </div>
+                            <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-center col-span-2 sm:col-span-3">
+                                <div class="text-xs text-amber-800 font-medium">Est. Masonry Cost</div>
+                                <div class="text-xl font-extrabold text-amber-600 mt-1" id="out_bw_cost">₹ 0.00</div>
+                            </div>
+                        </div>
+
+                        <!-- Technical Reference Badges -->
+                        <div class="border-t pt-3 mt-2 text-xs text-slate-500 space-y-1">
+                            <div><i class="fa-solid fa-check text-green-600 mr-1"></i> <strong>IS 1077:1992:</strong> Common burnt clay building bricks specification.</div>
+                            <div><i class="fa-solid fa-check text-green-600 mr-1"></i> <strong>IS 2212:1991:</strong> Code of practice for brickwork. Dry mortar conversion factor: 1.33.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 3: PLASTERING WORKS -->
+        <section id="module-plastering" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Inputs Column -->
+                <div class="lg:col-span-5 bg-white rounded-xl shadow-md border border-slate-200 p-5">
+                    <div class="flex items-center justify-between border-b pb-3 mb-4">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-paint-roller text-brand-600 mr-2"></i> Plastering Estimator
+                        </h3>
+                        <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-blue-200">IS 1661 / IS 2402</span>
+                    </div>
+
+                    <form id="form-plastering" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Total Plaster Surface Area (m²)</label>
+                            <input type="number" id="pl_area" value="100" step="1" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-brand-600 outline-none" oninput="calculatePlastering()">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">Plaster Thickness</label>
+                                <select id="pl_thickness" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-brand-600 outline-none" onchange="calculatePlastering()">
+                                    <option value="0.012" selected>12 mm (Internal Smooth)</option>
+                                    <option value="0.015">15 mm (Ceiling / Brick)</option>
+                                    <option value="0.020">20 mm (External Rough)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">Mortar Mix Ratio</label>
+                                <select id="pl_ratio" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-brand-600 outline-none" onchange="calculatePlastering()">
+                                    <option value="1:3">1 : 3 (Ceilings/External)</option>
+                                    <option value="1:4" selected>1 : 4 (Standard Walls)</option>
+                                    <option value="1:6">1 : 6 (Low Stress)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-900">
+                            <i class="fa-solid fa-circle-info mr-1 text-amber-600"></i>
+                            <strong>IS 1661 Provision:</strong> Mortar dry volume multiplier factor of <strong>1.33</strong> plus 20% joint filling allowance applied.
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Outputs Column -->
+                <div class="lg:col-span-7 bg-white rounded-xl shadow-md border border-slate-200 p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between border-b pb-3 mb-4">
+                            <h3 class="text-lg font-bold text-slate-800">Plaster Material Requirement</h3>
+                            <span class="text-xs font-mono bg-slate-100 px-2 py-1 rounded border text-slate-600">Dry Vol: <strong id="out_pl_dry_vol">1.91</strong> m³</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
+                            <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-center">
+                                <div class="text-xs text-slate-500 font-medium">Cement Bags</div>
+                                <div class="text-xl font-extrabold text-brand-700 mt-1" id="out_pl_cement_bags">10.9</div>
+                                <div class="text-xs text-slate-400">Bags (50kg)</div>
+                            </div>
+                            <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-center">
+                                <div class="text-xs text-slate-500 font-medium">Fine Sand</div>
+                                <div class="text-xl font-extrabold text-brand-700 mt-1" id="out_pl_sand_cft">54.1</div>
+                                <div class="text-xs text-slate-400">cu.ft (<span id="out_pl_sand_tons">2.6</span> Tons)</div>
+                            </div>
+                            <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-center">
+                                <div class="text-xs text-amber-800 font-medium">Est. Plaster Cost</div>
+                                <div class="text-xl font-extrabold text-amber-600 mt-1" id="out_pl_cost">₹ 0.00</div>
+                                <div class="text-xs text-amber-700">Calculated from rates</div>
+                            </div>
+                        </div>
+
+                        <!-- Technical Reference Badges -->
+                        <div class="border-t pt-3 mt-2 text-xs text-slate-500 space-y-1">
+                            <div><i class="fa-solid fa-check text-green-600 mr-1"></i> <strong>IS 1661:1972:</strong> Code of practice for application of cement and cement-lime plaster finishes.</div>
+                            <div><i class="fa-solid fa-check text-green-600 mr-1"></i> <strong>IS 1542:</strong> Specification for sand for plastering.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 4: FLOORING & TILING -->
+        <section id="module-flooring" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Inputs Column -->
+                <div class="lg:col-span-5 bg-white rounded-xl shadow-md border border-slate-200 p-5">
+                    <div class="flex items-center justify-between border-b pb-3 mb-4">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-layer-group text-brand-600 mr-2"></i> Flooring & Tile Estimator
+                        </h3>
+                        <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded border border-blue-200">IS 13712 / IS 1443</span>
+                    </div>
+
+                    <form id="form-flooring" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Total Floor Area (m²)</label>
+                            <input type="number" id="fl_area" value="50" step="1" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-brand-600 outline-none" oninput="calculateFlooring()">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">Tile Dimensions</label>
+                                <select id="fl_tilesize" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-brand-600 outline-none" onchange="calculateFlooring()">
+                                    <option value="0.36" selected>600 mm x 600 mm (2x2 ft)</option>
+                                    <option value="0.64">800 mm x 800 mm</option>
+                                    <option value="0.09">300 mm x 300 mm (1x1 ft)</option>
+                                    <option value="0.72">600 mm x 1200 mm</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-600 mb-1">Mortar Bed Thickness</label>
+                                <select id="fl_bed_thk" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-brand-600 outline-none" onchange="calculateFlooring()">
+                                    <option value="0.025" selected>25 mm Mortar Bed</option>
+                                    <option value="0.040">40 mm PCC Bed</option>
+                                    <option value="0.050">50 mm Thick Bed</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-600 mb-1">Tile Cutting Wastage (%)</label>
+                            <input type="number" id="fl_wastage" value="5" step="1" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-brand-600 outline-none" oninput="calculateFlooring()">
+                        </div>
+
+                        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-900">
+                            <i class="fa-solid fa-circle-info mr-1 text-amber-600"></i>
+                            Bed mortar mix ratio set to <strong>1 : 4 (Cement : Sand)</strong> with grout slurry allowance.
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Outputs Column -->
+                <div class="lg:col-span-7 bg-white rounded-xl shadow-md border border-slate-200 p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between border-b pb-3 mb-4">
+                            <h3 class="text-lg font-bold text-slate-800">Flooring Material Requirement</h3>
+                            <span class="text-xs font-mono bg-slate-100 px-2 py-1 rounded border text-slate-600">Coverage: <strong>50.00</strong> m²</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
+                            <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-center">
+                                <div class="text-xs text-slate-500 font-medium">Tiles Required</div>
+                                <div class="text-xl font-extrabold text-brand-700 mt-1" id="out_fl_tiles">146</div>
+                                <div class="text-xs text-slate-400">Pcs (incl. 5% waste)</div>
+                            </div>
+                            <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-center">
+                                <div class="text-xs text-slate-500 font-medium">Cement (Bed + Slurry)</div>
+                                <div class="text-xl font-extrabold text-brand-700 mt-1" id="out_fl_cement_bags">11.8</div>
+                                <div class="text-xs text-slate-400">Bags (50kg)</div>
+                            </div>
+                            <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-center">
+                                <div class="text-xs text-slate-500 font-medium">Sand for Bed</div>
+                                <div class="text-xl font-extrabold text-brand-700 mt-1" id="out_fl_sand_cft">58.7</div>
+                                <div class="text-xs text-slate-400">cu.ft (<span id="out_fl_sand_tons">2.8</span> Tons)</div>
+                            </div>
+                            <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-center col-span-2 sm:col-span-3">
+                                <div class="text-xs text-amber-800 font-medium">Est. Flooring Materials Cost</div>
+                                <div class="text-xl font-extrabold text-amber-600 mt-1" id="out_fl_cost">₹ 0.00</div>
+                            </div>
+                        </div>
+
+                        <!-- Technical Reference Badges -->
+                        <div class="border-t pt-3 mt-2 text-xs text-slate-500 space-y-1">
+                            <div><i class="fa-solid fa-check text-green-600 mr-1"></i> <strong>IS 13712:</strong> Ceramic tiles — Definitions, classification, characteristics and marking.</div>
+                            <div><i class="fa-solid fa-check text-green-600 mr-1"></i> <strong>IS 1443:1972:</strong> Code of practice for laying and finishing of cement concrete floor tiles.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONSOLIDATED BOQ & COST ESTIMATION TAB -->
+        <section id="module-boq" class="tab-content hidden">
+            <div class="bg-white rounded-xl shadow-md border border-slate-200 p-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b pb-4 mb-6">
+                    <div>
+                        <h3 class="text-xl font-extrabold text-slate-800">Consolidated Bill of Quantities (BOQ)</h3>
+                        <p class="text-xs text-slate-500 mt-1">Adjust local market unit rates below to auto-calculate the grand total project material cost.</p>
+                    </div>
+                    <div class="mt-3 sm:mt-0 text-right">
+                        <span class="text-xs text-slate-500 uppercase block font-bold">Estimated Total Material Cost</span>
+                        <span class="text-2xl font-black text-amber-600" id="grand_total_display">₹ 0.00</span>
+                    </div>
+                </div>
+
+                <!-- Rates Customizer Table -->
+                <div class="overflow-x-auto mb-6">
+                    <table class="w-full text-sm text-left text-slate-700 border-collapse">
+                        <thead class="text-xs uppercase bg-slate-100 text-slate-700 border-b">
+                            <tr>
+                                <th class="py-3 px-4">Material Item</th>
+                                <th class="py-3 px-4 text-center">Unit</th>
+                                <th class="py-3 px-4 text-right">Consolidated Qty</th>
+                                <th class="py-3 px-4 text-right">Unit Rate (₹)</th>
+                                <th class="py-3 px-4 text-right">Total Amount (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200" id="boq_tbody">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 text-xs text-slate-600 flex justify-between items-center">
+                    <div><i class="fa-solid fa-calculator mr-1"></i> Quantities are synchronized live across all 4 estimation modules.</div>
+                    <button onclick="window.print()" class="bg-brand-700 hover:bg-brand-800 text-white font-semibold px-4 py-2 rounded-lg transition shadow">
+                        <i class="fa-solid fa-file-pdf mr-1"></i> Generate Printable Report
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRINTABLE EXECUTIVE REPORT CONTAINER (FOR PRINT MODE & PREVIEW) -->
+        <section id="printable-report" class="print-only bg-white p-8 border border-slate-300 rounded-none shadow-none mt-6">
+            <!-- Executive Header -->
+            <div class="border-b-2 border-brand-900 pb-4 mb-6 flex justify-between items-start">
+                <div>
+                    <h1 class="text-2xl font-black text-brand-900 uppercase">Structural Material Calculation & BOQ Report</h1>
+                    <h2 class="text-sm font-bold text-slate-700">Building Calcs by Polytechnic Boys MCSMP</h2>
+                    <p class="text-xs text-slate-500">Compliant with Indian Standard Codes (IS 456, IS 1200, IS 1077, IS 383)</p>
+                </div>
+                <div class="text-right text-xs">
+                    <div class="font-bold text-amber-600 text-base">MCSMP-EST-REPORT</div>
+                    <div>Date: <span id="rep_date_val" class="font-semibold"></span></div>
+                </div>
+            </div>
+
+            <!-- Project Details Grid -->
+            <div class="grid grid-cols-3 gap-4 mb-6 p-4 bg-slate-50 border border-slate-200 text-xs">
+                <div><strong>Project Name:</strong> <span id="rep_proj_name">-</span></div>
+                <div><strong>Site Location:</strong> <span id="rep_proj_site">-</span></div>
+                <div><strong>Prepared By:</strong> <span id="rep_engineer">-</span></div>
+            </div>
+
+            <!-- Summary Table -->
+            <h3 class="text-sm font-bold uppercase text-brand-800 mb-2 border-b pb-1">1. Material Summary & BOQ Breakdown</h3>
+            <table class="w-full text-xs text-left border-collapse border border-slate-300 mb-6">
+                <thead>
+                    <tr class="bg-slate-100 font-bold border-b border-slate-300">
+                        <th class="p-2 border-r">Sl. No.</th>
+                        <th class="p-2 border-r">Material Description</th>
+                        <th class="p-2 border-r text-center">Unit</th>
+                        <th class="p-2 border-r text-right">Quantity</th>
+                        <th class="p-2 border-r text-right">Rate (₹)</th>
+                        <th class="p-2 text-right">Amount (₹)</th>
+                    </tr>
+                </thead>
+                <tbody id="rep_boq_tbody">
+                    <!-- Dynamic populate -->
+                </tbody>
+            </table>
+
+            <!-- IS Code Compliance & Technical Notes -->
+            <h3 class="text-sm font-bold uppercase text-brand-800 mb-2 border-b pb-1">2. IS Code Compliance Standards</h3>
+            <div class="text-xs text-slate-700 space-y-1 mb-8 pl-4 list-disc">
+                <div>• <strong>IS 456:2000:</strong> Plain and Reinforced Concrete - Code of Practice (Dry vol factor 1.54 utilized).</div>
+                <div>• <strong>IS 1200 (Parts 1-28):</strong> Method of Measurement of Building and Civil Engineering Works.</div>
+                <div>• <strong>IS 1077 / IS 2212:</strong> Specifications for burnt clay bricks & masonry work standards.</div>
+                <div>• <strong>IS 383:2016:</strong> Coarse and Fine Aggregates Specifications.</div>
+                <div>• <strong>IS 1661:</strong> Application of Cement Plaster Finish on brickwork & concrete surfaces.</div>
+            </div>
+
+            <!-- Signatures Section -->
+            <div class="grid grid-cols-2 gap-12 pt-12 text-xs text-center border-t border-slate-300 mt-12">
+                <div>
+                    <div class="border-b border-slate-400 w-48 mx-auto mb-2"></div>
+                    <div class="font-bold text-slate-800">Prepared By</div>
+                    <div class="text-slate-500">Polytechnic Boys MCSMP Student/Engineer</div>
+                </div>
+                <div>
+                    <div class="border-b border-slate-400 w-48 mx-auto mb-2"></div>
+                    <div class="font-bold text-slate-800">Verified & Approved By</div>
+                    <div class="text-slate-500">Chartered Civil Engineer / HOD</div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-5 mt-auto border-t border-slate-800 no-print">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p>© <span id="curr_year"></span> <strong>Building Calcs by Polytechnic Boys MCSMP</strong>. All rights reserved.</p>
+            <p class="mt-1 text-slate-500">Designed for Civil Engineering Students, Diploma Holders & Site Engineers complying with BIS Codes.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Calculation Engine -->
+    <script>
+        // Global Rates Object (Customizable in BOQ)
+        const unitRates = {
+            cement: 380,      // per Bag
+            sand: 55,         // per cu.ft
+            aggregate: 45,    // per cu.ft
+            steel: 65,        // per Kg
+            bricks: 9,        // per Brick
+            tiles: 45         // per Tile
+        };
+
+        // Initialize App
+        window.onload = function() {
+            // Set current date
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('projDate').value = today;
+            document.getElementById('curr_year').innerText = new Date().getFullYear();
+
+            // Perform initial calculations
+            calculateAll();
+            updateReportMetaData();
+        };
+
+        function switchTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('block'));
+
+            // Reset tab button styling
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-700', 'text-white', 'shadow');
+                btn.classList.add('bg-white', 'text-slate-700');
+            });
+
+            // Show selected tab content
+            const targetContent = document.getElementById('module-' + tabId);
+            if (targetContent) {
+                targetContent.classList.remove('hidden');
+                targetContent.classList.add('block');
+            }
+
+            // Highlight active tab button
+            const activeBtn = document.getElementById('tab-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-brand-700', 'text-white', 'shadow');
+                activeBtn.classList.remove('bg-white', 'text-slate-700');
+            }
+        }
+
+        function calculateAll() {
+            calculateRCC();
+            calculateBrickwork();
+            calculatePlastering();
+            calculateFlooring();
+            updateBOQTable();
+        }
+
+        // 1. RCC Calculation Engine
+        function calculateRCC() {
+            const l = parseFloat(document.getElementById('rcc_length').value) || 0;
+            const w = parseFloat(document.getElementById('rcc_width').value) || 0;
+            const d = parseFloat(document.getElementById('rcc_depth').value) || 0;
+            const grade = document.getElementById('rcc_grade').value;
+            const steelPct = parseFloat(document.getElementById('rcc_steel_pct').value) || 0;
+
+            const wetVol = l * w * d; // m³
+            const dryVol = wetVol * 1.54; // IS 456 shrinkage factor
+
+            let cRatio = 1, sRatio = 1.5, aRatio = 3;
+            if (grade === 'M15') { cRatio = 1; sRatio = 2; aRatio = 4; }
+            else if (grade === 'M20') { cRatio = 1; sRatio = 1.5; aRatio = 3; }
+            else if (grade === 'M25') { cRatio = 1; sRatio = 1; aRatio = 2; }
+            else if (grade === 'M30') { cRatio = 1; sRatio = 1; aRatio = 1.5; }
+
+            const totalRatio = cRatio + sRatio + aRatio;
+
+            // Cement calculation
+            const cementVol = (cRatio / totalRatio) * dryVol;
+            const cementBags = (cementVol * 1440) / 50; // Density = 1440 kg/m³
+
+            // Sand calculation
+            const sandVolM3 = (sRatio / totalRatio) * dryVol;
+            const sandCft = sandVolM3 * 35.3147;
+            const sandTons = (sandVolM3 * 1600) / 1000;
+
+            // Aggregate calculation
+            const aggVolM3 = (aRatio / totalRatio) * dryVol;
+            const aggCft = aggVolM3 * 35.3147;
+            const aggTons = (aggVolM3 * 1450) / 1000;
+
+            // Steel calculation (Density = 7850 kg/m³)
+            const steelKg = wetVol * (steelPct / 100) * 7850;
+            const steelTon = steelKg / 1000;
+
+            // Water calculation (W/C ~ 0.50)
+            const waterLtr = cementBags * 50 * 0.50;
+
+            // Cost calculation
+            const cost = (cementBags * unitRates.cement) + 
+                         (sandCft * unitRates.sand) + 
+                         (aggCft * unitRates.aggregate) + 
+                         (steelKg * unitRates.steel);
+
+            // Update DOM outputs
+            document.getElementById('out_rcc_wet_vol').innerText = wetVol.toFixed(2);
+            document.getElementById('out_rcc_cement_bags').innerText = cementBags.toFixed(1);
+            document.getElementById('out_rcc_sand_cft').innerText = sandCft.toFixed(1);
+            document.getElementById('out_rcc_sand_tons').innerText = sandTons.toFixed(1);
+            document.getElementById('out_rcc_agg_cft').innerText = aggCft.toFixed(1);
+            document.getElementById('out_rcc_agg_tons').innerText = aggTons.toFixed(1);
+            document.getElementById('out_rcc_steel_kg').innerText = steelKg.toFixed(2);
+            document.getElementById('out_rcc_steel_ton').innerText = steelTon.toFixed(2);
+            document.getElementById('out_rcc_water_ltr').innerText = Math.round(waterLtr);
+            document.getElementById('out_rcc_cost').innerText = '₹ ' + cost.toLocaleString('en-IN', {maximumFractionDigits: 2});
+
+            updateBOQTable();
+        }
+
+        // 2. Brickwork Calculation Engine
+        function calculateBrickwork() {
+            const l = parseFloat(document.getElementById('bw_length').value) || 0;
+            const h = parseFloat(document.getElementById('bw_height').value) || 0;
+            const thk = parseFloat(document.getElementById('bw_thickness').value) || 0;
+            const ratioStr = document.getElementById('bw_ratio').value;
+            const wastage = parseFloat(document.getElementById('bw_wastage').value) || 0;
+
+            const wallVol = l * h * thk; // m³
+
+            // Single brick with mortar = 0.2 x 0.1 x 0.1 = 0.002 m³
+            const netBricks = wallVol / 0.002;
+            const totalBricks = Math.ceil(netBricks * (1 + wastage / 100));
+
+            // Mortar calculation: Mortar Vol = Wall Vol - (Net Bricks * Single Brick without mortar)
+            // Single brick without mortar = 0.19 x 0.09 x 0.09 = 0.001539 m³
+            const wetMortarVol = wallVol - (netBricks * 0.001539);
+            const dryMortarVol = wetMortarVol * 1.33; // IS 2212 factor
+
+            const parts = ratioStr.split(':').map(Number);
+            const cRatio = parts[0];
+            const sRatio = parts[1];
+            const totalRatio = cRatio + sRatio;
+
+            const cementVol = (cRatio / totalRatio) * dryMortarVol;
+            const cementBags = (cementVol * 1440) / 50;
+
+            const sandVolM3 = (sRatio / totalRatio) * dryMortarVol;
+            const sandCft = sandVolM3 * 35.3147;
+            const sandTons = (sandVolM3 * 1600) / 1000;
+
+            const cost = (totalBricks * unitRates.bricks) + 
+                         (cementBags * unitRates.cement) + 
+                         (sandCft * unitRates.sand);
+
+            // Update DOM outputs
+            document.getElementById('out_bw_vol').innerText = wallVol.toFixed(2);
+            document.getElementById('out_bw_bricks').innerText = totalBricks.toLocaleString();
+            document.getElementById('out_bw_cement_bags').innerText = cementBags.toFixed(1);
+            document.getElementById('out_bw_sand_cft').innerText = sandCft.toFixed(1);
+            document.getElementById('out_bw_sand_tons').innerText = sandTons.toFixed(1);
+            document.getElementById('out_bw_cost').innerText = '₹ ' + cost.toLocaleString('en-IN', {maximumFractionDigits: 2});
+
+            updateBOQTable();
+        }
+
+        // 3. Plastering Calculation Engine
+        function calculatePlastering() {
+            const area = parseFloat(document.getElementById('pl_area').value) || 0;
+            const thk = parseFloat(document.getElementById('pl_thickness').value) || 0;
+            const ratioStr = document.getElementById('pl_ratio').value;
+
+            // Wet mortar volume with 20% extra for joint filling/uneven surfaces
+            const wetVol = area * thk * 1.20;
+            const dryVol = wetVol * 1.33; // IS 1661 factor
+
+            const parts = ratioStr.split(':').map(Number);
+            const cRatio = parts[0];
+            const sRatio = parts[1];
+            const totalRatio = cRatio + sRatio;
+
+            const cementVol = (cRatio / totalRatio) * dryVol;
+            const cementBags = (cementVol * 1440) / 50;
+
+            const sandVolM3 = (sRatio / totalRatio) * dryVol;
+            const sandCft = sandVolM3 * 35.3147;
+            const sandTons = (sandVolM3 * 1600) / 1000;
+
+            const cost = (cementBags * unitRates.cement) + (sandCft * unitRates.sand);
+
+            document.getElementById('out_pl_dry_vol').innerText = dryVol.toFixed(2);
+            document.getElementById('out_pl_cement_bags').innerText = cementBags.toFixed(1);
+            document.getElementById('out_pl_sand_cft').innerText = sandCft.toFixed(1);
+            document.getElementById('out_pl_sand_tons').innerText = sandTons.toFixed(1);
+            document.getElementById('out_pl_cost').innerText = '₹ ' + cost.toLocaleString('en-IN', {maximumFractionDigits: 2});
+
+            updateBOQTable();
+        }
+
+        // 4. Flooring Calculation Engine
+        function calculateFlooring() {
+            const area = parseFloat(document.getElementById('fl_area').value) || 0;
+            const tileArea = parseFloat(document.getElementById('fl_tilesize').value) || 0.36;
+            const bedThk = parseFloat(document.getElementById('fl_bed_thk').value) || 0.025;
+            const wastage = parseFloat(document.getElementById('fl_wastage').value) || 0;
+
+            const netTiles = area / tileArea;
+            const totalTiles = Math.ceil(netTiles * (1 + wastage / 100));
+
+            // Mortar bed calculations (1:4 ratio)
+            const bedWetVol = area * bedThk;
+            const bedDryVol = bedWetVol * 1.33;
+
+            const cementVol = (1 / 5) * bedDryVol;
+            let cementBags = (cementVol * 1440) / 50;
+
+            // Add cement slurry for tile fixing (~ 4.4 kg per m²)
+            const slurryCementBags = (area * 4.4) / 50;
+            cementBags += slurryCementBags;
+
+            const sandVolM3 = (4 / 5) * bedDryVol;
+            const sandCft = sandVolM3 * 35.3147;
+            const sandTons = (sandVolM3 * 1600) / 1000;
+
+            const cost = (totalTiles * unitRates.tiles) + 
+                         (cementBags * unitRates.cement) + 
+                         (sandCft * unitRates.sand);
+
+            document.getElementById('out_fl_tiles').innerText = totalTiles.toLocaleString();
+            document.getElementById('out_fl_cement_bags').innerText = cementBags.toFixed(1);
+            document.getElementById('out_fl_sand_cft').innerText = sandCft.toFixed(1);
+            document.getElementById('out_fl_sand_tons').innerText = sandTons.toFixed(1);
+            document.getElementById('out_fl_cost').innerText = '₹ ' + cost.toLocaleString('en-IN', {maximumFractionDigits: 2});
+
+            updateBOQTable();
+        }
+
+        // Update Consolidated BOQ Table & Grand Total
+        function updateBOQTable() {
+            // Retrieve calculated quantities from modules
+            const rcc_c = parseFloat(document.getElementById('out_rcc_cement_bags').innerText) || 0;
+            const bw_c = parseFloat(document.getElementById('out_bw_cement_bags').innerText) || 0;
+            const pl_c = parseFloat(document.getElementById('out_pl_cement_bags').innerText) || 0;
+            const fl_c = parseFloat(document.getElementById('out_fl_cement_bags').innerText) || 0;
+            const totalCement = rcc_c + bw_c + pl_c + fl_c;
+
+            const rcc_s = parseFloat(document.getElementById('out_rcc_sand_cft').innerText) || 0;
+            const bw_s = parseFloat(document.getElementById('out_bw_sand_cft').innerText) || 0;
+            const pl_s = parseFloat(document.getElementById('out_pl_sand_cft').innerText) || 0;
+            const fl_s = parseFloat(document.getElementById('out_fl_sand_cft').innerText) || 0;
+            const totalSand = rcc_s + bw_s + pl_s + fl_s;
+
+            const totalAgg = parseFloat(document.getElementById('out_rcc_agg_cft').innerText) || 0;
+            const totalSteel = parseFloat(document.getElementById('out_rcc_steel_kg').innerText) || 0;
+            const totalBricks = parseInt(document.getElementById('out_bw_bricks').innerText.replace(/,/g, '')) || 0;
+            const totalTiles = parseInt(document.getElementById('out_fl_tiles').innerText.replace(/,/g, '')) || 0;
+
+            const boqData = [
+                { id: 'cement', name: 'Cement (OPC / PPC 50kg Bags)', unit: 'Bags', qty: totalCement.toFixed(1), rate: unitRates.cement },
+                { id: 'sand', name: 'Fine Aggregate / River Sand', unit: 'cu.ft', qty: totalSand.toFixed(1), rate: unitRates.sand },
+                { id: 'aggregate', name: 'Coarse Aggregate (20mm / 10mm)', unit: 'cu.ft', qty: totalAgg.toFixed(1), rate: unitRates.aggregate },
+                { id: 'steel', name: 'Reinforcement Steel (Fe 500 TMT)', unit: 'Kg', qty: totalSteel.toFixed(2), rate: unitRates.steel },
+                { id: 'bricks', name: 'Standard Modular Clay Bricks', unit: 'Nos', qty: totalBricks, rate: unitRates.bricks },
+                { id: 'tiles', name: 'Vitrified / Ceramic Flooring Tiles', unit: 'Pcs', qty: totalTiles, rate: unitRates.tiles },
+            ];
+
+            let grandTotal = 0;
+            let tbodyHTML = '';
+            let repTbodyHTML = '';
+
+            boqData.forEach((item, index) => {
+                const totalAmt = item.qty * item.rate;
+                grandTotal += totalAmt;
+
+                tbodyHTML += `
+                    <tr>
+                        <td class="py-3 px-4 font-semibold">${item.name}</td>
+                        <td class="py-3 px-4 text-center">${item.unit}</td>
+                        <td class="py-3 px-4 text-right font-mono">${item.qty}</td>
+                        <td class="py-3 px-4 text-right">
+                            <input type="number" value="${item.rate}" onchange="updateRate('${item.id}', this.value)" 
+                            class="w-24 text-right bg-slate-50 border border-slate-300 rounded px-2 py-1 text-sm font-semibold focus:ring-2 focus:ring-brand-600 outline-none">
+                        </td>
+                        <td class="py-3 px-4 text-right font-bold text-slate-900">₹ ${totalAmt.toLocaleString('en-IN', {maximumFractionDigits: 2})}</td>
+                    </tr>
+                `;
+
+                repTbodyHTML += `
+                    <tr class="border-b border-slate-200">
+                        <td class="p-2 border-r text-center">${index + 1}</td>
+                        <td class="p-2 border-r font-medium">${item.name}</td>
+                        <td class="p-2 border-r text-center">${item.unit}</td>
+                        <td class="p-2 border-r text-right font-mono">${item.qty}</td>
+                        <td class="p-2 border-r text-right">₹ ${item.rate}</td>
+                        <td class="p-2 text-right font-bold">₹ ${totalAmt.toLocaleString('en-IN', {maximumFractionDigits: 2})}</td>
+                    </tr>
+                `;
+            });
+
+            // Append Grand Total Row
+            repTbodyHTML += `
+                <tr class="bg-slate-100 font-bold border-t-2 border-slate-400">
+                    <td colspan="5" class="p-2 text-right border-r uppercase">Grand Total Estimated Material Cost:</td>
+                    <td class="p-2 text-right text-brand-900 text-sm">₹ ${grandTotal.toLocaleString('en-IN', {maximumFractionDigits: 2})}</td>
+                </tr>
+            `;
+
+            document.getElementById('boq_tbody').innerHTML = tbodyHTML;
+            document.getElementById('rep_boq_tbody').innerHTML = repTbodyHTML;
+            document.getElementById('grand_total_display').innerText = '₹ ' + grandTotal.toLocaleString('en-IN', {maximumFractionDigits: 2});
+        }
+
+        function updateRate(key, val) {
+            unitRates[key] = parseFloat(val) || 0;
+            calculateAll();
+        }
+
+        function updateReportMetaData() {
+            document.getElementById('rep_proj_name').innerText = document.getElementById('projName').value || 'N/A';
+            document.getElementById('rep_proj_site').innerText = document.getElementById('projSite').value || 'N/A';
+            document.getElementById('rep_engineer').innerText = document.getElementById('projEngineer').value || 'N/A';
+            document.getElementById('rep_date_val').innerText = document.getElementById('projDate').value || 'N/A';
+        }
+
+        function resetAllCalculations() {
+            document.getElementById('form-rcc').reset();
+            document.getElementById('form-brickwork').reset();
+            document.getElementById('form-plastering').reset();
+            document.getElementById('form-flooring').reset();
+            calculateAll();
+        }
+    </script>
+</body>
+</html>
